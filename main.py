@@ -69,8 +69,8 @@ def get_biel_data(tree):
             continue
         if filename_root not in files:
             files[filename_root] = {
-                "sort": "/".join(path_parts[:-1]) + "/" + filename_root,
-                "name": " / ".join(path_parts[2:-1]) + " / " + filename_root,
+                "sort": "/".join(path_parts[:-1] + (filename_root,)),
+                "name": " : ".join(path_parts[2:-1] + (filename_root,)),
                 "root": filename_root,
                 "links": {}
                 }
