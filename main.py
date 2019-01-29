@@ -5,14 +5,16 @@ import github
 
 def main():
     args = parse_arguments()
-    if (args.user == "" and args.password == ""):
-        github_api = github.Github()
-    else:
-        github_api = github.Github(args.user, args.password)
+    github_api = login_to_github(args.user, args.password)
     repo = github_api.get_repo("wa-biel/biel-files")
     tree = repo.get_git_tree("master",recursive=True)
-    print(tree)
-    print(tree.tree)
+
+def login_to_github(username, password):
+    if (username == "" and password == ""):
+        github_api = github.Github()
+    else:
+        github_api = github.Github(username, password)
+    return github_api
 
 def parse_arguments(): # pragma: no cover
     """ Configures and parses command-line arguments """
@@ -28,7 +30,7 @@ def parse_arguments(): # pragma: no cover
     argparser.add_argument("--password",
                            nargs="?",
                            default="",
-                           help="GitHub password, default anonymous")
+                           help="GitHub password or token, default anonymous")
 
     return argparser.parse_args()
 
