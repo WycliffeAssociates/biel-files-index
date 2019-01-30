@@ -147,7 +147,6 @@ def create_biel_data_from_files(files):
             "category": "topics",
             "links": []
             }
-        print(file_data["sort"])
         for link in sorted(file_data["links"].values(), key=operator.itemgetter("extension")):
             entry["links"].append({
                 "url": path_to_url(link["path"]),
