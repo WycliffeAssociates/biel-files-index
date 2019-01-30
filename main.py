@@ -84,7 +84,7 @@ def filter_files_from_tree(tree):
         if filename_root not in files:
             files[filename_root] = {
                 "sort": "/".join(path_parts[:-1] + (filename_root,)),
-                "name": " : ".join(path_parts[2:-1] + (filename_root,)),
+                "name": filename_root, # Per Deborah, don't show folder names
                 "root": filename_root,
                 "links": {}
                 }
