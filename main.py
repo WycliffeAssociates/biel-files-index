@@ -92,14 +92,15 @@ def filter_files_from_tree(tree, extensions, books):
 
         # Process files
         if filename_root not in files:
-            # If the filename is a book of the Bible, sort in canonical order
-            book_number = ""
-            if filename_root in books:
-                book_number = str(books[filename_root]["num"]).zfill(2)
+            # If the filename contains a book of the Bible, sort in canonical order
+            book_number = "00-"
+            for book in books:
+                if book in filename_root:
+                    book_number = str(books[book]["num"]).zfill(2) + "-"
+                    break
             # Sort shallower items before deeper ones, then by directory
-            sort = str(len(path_parts)) + \
-                   "/".join(path_parts[2:-1] + \
-                   (book_number + filename_root,))
+            sort = str(len(path_parts)) + "-" + \
+                   "/".join(path_parts[2:-1] + (book_number + filename_root,))
             files[filename_root] = {
                 "sort": sort,
                 "name": filename_root,
