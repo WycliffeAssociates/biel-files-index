@@ -16,10 +16,11 @@ def main():
     """ Main function. """
     extensions = ["pdf", "docx", "zip"]
     args = parse_arguments()
+    books = load_books()
     github_api = get_github_api(args.user, args.password)
     repo = github_api.get_repo("wa-biel/biel-files")
     tree = repo.get_git_tree("master", recursive=True)
-    biel_data = create_biel_data_from_tree(tree, extensions)
+    biel_data = create_biel_data_from_tree(tree, extensions, books)
     json.dump(biel_data, args.outfile, sort_keys=True, indent=4)
 
 def parse_arguments(): # pragma: no cover
@@ -46,6 +47,11 @@ def parse_arguments(): # pragma: no cover
 
     return argparser.parse_args()
 
+def load_books():
+    """ Load books.json from disk """
+    with open("books.json") as infile:
+        return json.load(infile)
+
 def get_github_api(username, password):
     """ Logs into GitHub and returns an api object. If username and
         password are both blank, then an anonymous login will be used. """
@@ -55,13 +61,13 @@ def get_github_api(username, password):
         github_api = github.Github(username, password)
     return github_api
 
-def create_biel_data_from_tree(tree, extensions):
+def create_biel_data_from_tree(tree, extensions, books):
     """ Reads the repo tree and returns a BIEL-formatted data object. """
-    files = filter_files_from_tree(tree, extensions)
+    files = filter_files_from_tree(tree, extensions, books)
     data = create_biel_data_from_files(files)
     return data
 
-def filter_files_from_tree(tree, extensions):
+def filter_files_from_tree(tree, extensions, books):
     """ Reads a GitHub tree object and returns a list of files to be
         included in BIEL, sorted by name. """
     files = {}
@@ -86,10 +92,17 @@ def filter_files_from_tree(tree, extensions):
 
         # Process files
         if filename_root not in files:
-            sort = str(len(path_parts)) + "/".join(path_parts[2:-1] + (filename_root,))
+            # If the filename is a book of the Bible, sort in canonical order
+            book_number = ""
+            if filename_root in books:
+                book_number = str(books[filename_root]["num"]).zfill(2)
+            # Sort shallower items before deeper ones, then by directory
+            sort = str(len(path_parts)) + \
+                   "/".join(path_parts[2:-1] + \
+                   (book_number + filename_root,))
             files[filename_root] = {
                 "sort": sort,
-                "name": filename_root, # Per Deborah, don't show folder names
+                "name": filename_root,
                 "root": filename_root,
                 "links": {}
                 }
