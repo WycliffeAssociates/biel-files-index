@@ -18,7 +18,7 @@ def main():
     github_api = get_github_api(args.user, args.password)
     repo = github_api.get_repo("wa-biel/biel-files")
     tree = repo.get_git_tree("master", recursive=True)
-    biel_data = get_biel_data(tree)
+    biel_data = create_biel_data_from_tree(tree)
     json.dump(biel_data, args.outfile, sort_keys=True, indent=4)
 
 def parse_arguments(): # pragma: no cover
@@ -54,8 +54,15 @@ def get_github_api(username, password):
         github_api = github.Github(username, password)
     return github_api
 
-def get_biel_data(tree):
+def create_biel_data_from_tree(tree):
     """ Reads the repo tree and returns a BIEL-formatted data object. """
+    files = filter_files_from_tree(tree)
+    data = create_biel_data_from_files(files)
+    return data
+
+def filter_files_from_tree(tree):
+    """ Reads a GitHub tree object and returns a list of files to be
+        included in BIEL, sorted by name. """
     files = {}
     for entry in tree.tree:
         path_parts = pathlib.Path(entry.path).parts
@@ -87,6 +94,10 @@ def get_biel_data(tree):
             "extension": filename_extension,
             "path": entry.path,
             }
+    return sorted(files.values(), key=operator.itemgetter("sort"))
+
+def create_biel_data_from_files(files):
+    """ Creates BIEL-formatted data from list of files. """
     data = []
     en_node = {}
     data.append(en_node)
@@ -103,7 +114,7 @@ def get_biel_data(tree):
     rg_node["subcontents"] = []
     subcontents = rg_node["subcontents"]
     sort = 0
-    for file_data in sorted(files.values(), key=operator.itemgetter("sort")):
+    for file_data in files:
         sort += 1
         entry = {
             "name": file_data["name"],
