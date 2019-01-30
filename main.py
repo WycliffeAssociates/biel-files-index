@@ -14,7 +14,7 @@ import github
 
 def main():
     """ Main function. """
-    extensions = ["pdf", "docx"]
+    extensions = ["pdf", "docx", "zip"]
     args = parse_arguments()
     github_api = get_github_api(args.user, args.password)
     repo = github_api.get_repo("wa-biel/biel-files")
