@@ -99,19 +99,25 @@ def filter_files_from_tree(tree):
 def create_biel_data_from_files(files):
     """ Creates BIEL-formatted data from list of files. """
     data = []
+
+    # Create node for English
     en_node = {}
-    data.append(en_node)
     en_node["code"] = "en"
     en_node["contents"] = []
     en_node_contents = en_node["contents"]
+    data.append(en_node)
+
+    # Create node for Reviewer's Guide
     rg_node = {}
-    en_node_contents.append(rg_node)
     rg_node["code"] = "rg"
     rg_node["name"] = "Reviewer's Guide"
     rg_node["subject"] = "Reference"
     rg_node["checkingLevel"] = "3"
     rg_node["links"] = []
     rg_node["subcontents"] = []
+    en_node_contents.append(rg_node)
+
+    # Create nodes for each file
     subcontents = rg_node["subcontents"]
     sort = 0
     for file_data in files:
@@ -123,7 +129,7 @@ def create_biel_data_from_files(files):
             "category": "topics",
             "links": []
             }
-        for link in file_data["links"].values():
+        for link in sorted(file_data["links"].values(), key=operator.itemgetter("extension")):
             entry["links"].append({
                 "url": path_to_url(link["path"]),
                 "format": link["extension"],
