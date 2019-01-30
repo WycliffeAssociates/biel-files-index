@@ -84,10 +84,11 @@ def filter_files_from_tree(tree, extensions):
         if filename_root is None:
             continue
 
-        # Process file
+        # Process files
         if filename_root not in files:
+            sort = str(len(path_parts)) + "/".join(path_parts[2:-1] + (filename_root,))
             files[filename_root] = {
-                "sort": "/".join(path_parts[:-1] + (filename_root,)),
+                "sort": sort,
                 "name": filename_root, # Per Deborah, don't show folder names
                 "root": filename_root,
                 "links": {}
@@ -133,6 +134,7 @@ def create_biel_data_from_files(files):
             "category": "topics",
             "links": []
             }
+        print(file_data["sort"])
         for link in sorted(file_data["links"].values(), key=operator.itemgetter("extension")):
             entry["links"].append({
                 "url": path_to_url(link["path"]),
