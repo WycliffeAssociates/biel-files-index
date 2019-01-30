@@ -14,11 +14,12 @@ import github
 
 def main():
     """ Main function. """
+    extensions = ["pdf", "docx"]
     args = parse_arguments()
     github_api = get_github_api(args.user, args.password)
     repo = github_api.get_repo("wa-biel/biel-files")
     tree = repo.get_git_tree("master", recursive=True)
-    biel_data = create_biel_data_from_tree(tree)
+    biel_data = create_biel_data_from_tree(tree, extensions)
     json.dump(biel_data, args.outfile, sort_keys=True, indent=4)
 
 def parse_arguments(): # pragma: no cover
@@ -54,33 +55,36 @@ def get_github_api(username, password):
         github_api = github.Github(username, password)
     return github_api
 
-def create_biel_data_from_tree(tree):
+def create_biel_data_from_tree(tree, extensions):
     """ Reads the repo tree and returns a BIEL-formatted data object. """
-    files = filter_files_from_tree(tree)
+    files = filter_files_from_tree(tree, extensions)
     data = create_biel_data_from_files(files)
     return data
 
-def filter_files_from_tree(tree):
+def filter_files_from_tree(tree, extensions):
     """ Reads a GitHub tree object and returns a list of files to be
         included in BIEL, sorted by name. """
     files = {}
     for entry in tree.tree:
         path_parts = pathlib.Path(entry.path).parts
+
         # Ignore anything outside the review guide
         if path_parts[0] != "review-guide":
             continue
-        # Only consider .docx and .pdf files
-        filename = path_parts[-1]
+
+        # Ignore files that don't end with the given extensions
         filename_root = None
         filename_extension = None
-        if filename[-4:] == ".pdf":
-            filename_root = filename[:-4]
-            filename_extension = filename[-3:]
-        if filename[-5:] == ".docx":
-            filename_root = filename[:-5]
-            filename_extension = filename[-4:]
+        filename = path_parts[-1]
+        for extension in extensions:
+            if filename.endswith(extension):
+                filename_root = filename[:(len(extension)*-1)-1]
+                filename_extension = extension
+                break # for extension in extensions
         if filename_root is None:
             continue
+
+        # Process file
         if filename_root not in files:
             files[filename_root] = {
                 "sort": "/".join(path_parts[:-1] + (filename_root,)),
