@@ -64,8 +64,15 @@ def get_github_api(username, password):
 def create_biel_data_from_tree(tree, extensions, books):
     """ Reads the repo tree and returns a BIEL-formatted data object. """
     files = filter_files_from_tree(tree, extensions, books)
-    data = create_biel_data_from_files(files)
-    return data
+    return [{
+        "code": "en",
+        "contents": [{
+            "checkingLevel": "3",
+            "code": "rg",
+            "links": [],
+            "name": "Reviewer's Guide",
+            "subject": "Reference",
+            "subcontents": create_subcontents(files)}]}]
 
 def filter_files_from_tree(tree, extensions, books):
     """ Reads a GitHub tree object and returns a list of files to be
@@ -90,74 +97,75 @@ def filter_files_from_tree(tree, extensions, books):
         if filename_root is None:
             continue
 
-        # Process files
+        # Add file to index if it's not already there
         if filename_root not in files:
-            # If the filename contains a book of the Bible, sort in canonical order
-            book_number = "00-"
-            for book in books:
-                if book in filename_root:
-                    book_number = str(books[book]["num"]).zfill(2) + "-"
-                    break
-            # Sort shallower items before deeper ones, then by directory
-            sort = str(len(path_parts)) + "-" + \
-                   "/".join(path_parts[2:-1] + (book_number + filename_root,))
             files[filename_root] = {
-                "sort": sort,
+                "sort": calculate_sort_field(path_parts, filename_root, books),
                 "name": filename_root,
                 "root": filename_root,
                 "links": {}
                 }
-        file_data = files[filename_root]
-        file_data["links"][filename_extension] = {
+
+        # Add link to file in index
+        file_data = files[filename_root]["links"][filename_extension] = {
             "filename": filename,
             "extension": filename_extension,
             "path": entry.path,
             }
-    return sorted(files.values(), key=operator.itemgetter("sort"))
 
-def create_biel_data_from_files(files):
-    """ Creates BIEL-formatted data from list of files. """
-    data = []
+    # Sort all the files by sort parameter
+    file_list = sorted(files.values(), key=operator.itemgetter("sort"))
 
-    # Create node for English
-    en_node = {}
-    en_node["code"] = "en"
-    en_node["contents"] = []
-    en_node_contents = en_node["contents"]
-    data.append(en_node)
+    # Now that we have the sorted list, calculate sort indexes
+    sort_index = 0
+    for file_data in file_list:
+        sort_index += 1
+        file_data["sort_index"] = sort_index
 
-    # Create node for Reviewer's Guide
-    rg_node = {}
-    rg_node["code"] = "rg"
-    rg_node["name"] = "Reviewer's Guide"
-    rg_node["subject"] = "Reference"
-    rg_node["checkingLevel"] = "3"
-    rg_node["links"] = []
-    rg_node["subcontents"] = []
-    en_node_contents.append(rg_node)
+    return file_list
 
-    # Create nodes for each file
-    subcontents = rg_node["subcontents"]
-    sort = 0
-    for file_data in files:
-        sort += 1
-        entry = {
-            "name": file_data["name"],
-            "code": "",
-            "sort": sort,
-            "category": "topics",
-            "links": []
-            }
-        for link in sorted(file_data["links"].values(), key=operator.itemgetter("extension")):
-            entry["links"].append({
-                "url": path_to_url(link["path"]),
-                "format": link["extension"],
-                "zipContent": "",
-                "quality": None,
-                "chapters": []
-                })
-        subcontents.append(entry)
-    return data
+def calculate_sort_field(path_parts, filename_root, books):
+    """ Calculate where this item should be sorted.  Returns a string that
+        can be used to naturally sort the files. """
+
+    # If the filename contains a book of the Bible, sort in canonical order
+    book_number = "00-"
+    for book in books:
+        if book in filename_root:
+            book_number = str(books[book]["num"]).zfill(2) + "-"
+            break
+
+    # Sort shallower items before deeper ones, then by directory
+    sort = str(len(path_parts)) + "-" + \
+           "/".join(path_parts[2:-1] + (book_number + filename_root,))
+
+    return sort
+
+def create_subcontents(files):
+    """ Creates subcontents nodes of output data """
+    return [create_subcontents_entry(file_data) for file_data in files]
+
+def create_subcontents_entry(file_data):
+    """ Create single subcontents node for a given file """
+    return {
+        "name": file_data["name"],
+        "code": "",
+        "sort": file_data["sort_index"],
+        "category": "topics",
+        "links": [create_subcontents_entry_links(link) \
+                  for link in sorted(file_data["links"].values(), \
+                                     key=operator.itemgetter("extension"))]
+        }
+
+def create_subcontents_entry_links(link):
+    """ Create link nodes for a subcontents entry """
+    return {
+        "url": path_to_url(link["path"]),
+        "format": link["extension"],
+        "zipContent": "",
+        "quality": None,
+        "chapters": []
+        }
 
 def path_to_url(path):
     """ Returns a URL for the given path that will download the file from the repo. """
