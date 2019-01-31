@@ -91,7 +91,9 @@ def filter_files_from_tree(tree, extensions, books):
         filename = path_parts[-1]
         for extension in extensions:
             if filename.endswith(extension):
-                filename_root = filename[:(len(extension)*-1)-1]
+                # Calculate offset of extension (plus period) from end of string
+                extension_offset_from_end = (len(extension) + 1) * -1
+                filename_root = filename[:extension_offset_from_end]
                 filename_extension = extension
                 break # for extension in extensions
         if filename_root is None:
@@ -152,13 +154,12 @@ def create_subcontents_entry(file_data):
         "code": "",
         "sort": file_data["sort_index"],
         "category": "topics",
-        "links": [create_subcontents_entry_links(link) \
+        "links": [create_subcontents_entry_link(link) \
                   for link in sorted(file_data["links"].values(), \
-                                     key=operator.itemgetter("extension"))]
-        }
+                                     key=operator.itemgetter("extension"))]}
 
-def create_subcontents_entry_links(link):
-    """ Create link nodes for a subcontents entry """
+def create_subcontents_entry_link(link):
+    """ Create link node """
     return {
         "url": path_to_url(link["path"]),
         "format": link["extension"],
