@@ -13,11 +13,11 @@ class TestMain(unittest.TestCase):
         # pylint: disable=line-too-long
         tree = Mock(tree=[
             Mock(path="not-in-review-guide/dir1/dir2/Example Guide.pdf"),
+            Mock(path="review-guide/dir1/dir2/Guide for Genesis.docx"),
+            Mock(path="review-guide/dir1/dir2/Guide for Genesis.pdf"),
             Mock(path="review-guide/dir1/dir2/Example Guide.ignored-extension"),
             Mock(path="review-guide/dir1/dir2/Example Guide.pdf"),
             Mock(path="review-guide/dir1/dir2/Example Guide.docx"),
-            Mock(path="review-guide/dir1/dir2/Guide for Genesis.docx"),
-            Mock(path="review-guide/dir1/dir2/Guide for Genesis.pdf"),
             ])
         extensions = ["pdf", "docx", "zip"]
         books = {"Genesis": {"num": 1, "anth": "ot"}}
