@@ -12,7 +12,7 @@ import urllib
 
 import github
 
-def main():
+def main(): # pragma: no cover
     """ Main function. """
     extensions = ["pdf", "docx", "zip"]
     args = parse_arguments()
@@ -47,12 +47,12 @@ def parse_arguments(): # pragma: no cover
 
     return argparser.parse_args()
 
-def load_books():
+def load_books(): # pragma: no cover
     """ Load books.json from disk """
     with open("books.json") as infile:
         return json.load(infile)
 
-def get_github_api(username, password):
+def get_github_api(username, password): #pragma: no cover
     """ Logs into GitHub and returns an api object. If username and
         password are both blank, then an anonymous login will be used. """
     if (username == "" and password == ""):
@@ -172,5 +172,5 @@ def path_to_url(path):
     """ Returns a URL for the given path that will download the file from the repo. """
     return "https://github.com/wa-biel/biel-files/raw/master/" + urllib.parse.quote(path)
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     main()
