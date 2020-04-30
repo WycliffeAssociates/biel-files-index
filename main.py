@@ -70,7 +70,7 @@ def create_biel_data_from_tree(tree, extensions, books):
             "checkingLevel": "3",
             "code": "rg",
             "links": [],
-            "name": "Reviewer's Guide",
+            "name": "Reviewers' Guide",
             "subject": "Reference",
             "subcontents": create_subcontents(files)}]}]
 
