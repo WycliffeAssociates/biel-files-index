@@ -6,7 +6,10 @@ build:
 
 run:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
-	docker run --rm biel-files:$(BF_IMAGE_LABEL) > biel-files.json
+	docker run --rm \
+		--env BF_GITHUB_USERNAME=$(BF_GITHUB_USERNAME) \
+		--env BF_GITHUB_PASSWORD=$(BF_GITHUB_PASSWORD) \
+		biel-files:$(BF_IMAGE_LABEL) > biel-files.json
 
 test:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL

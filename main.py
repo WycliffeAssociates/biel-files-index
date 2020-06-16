@@ -6,6 +6,7 @@
 import argparse
 import json
 import operator
+import os
 import pathlib
 import sys
 import urllib
@@ -15,31 +16,27 @@ import github
 def main(): # pragma: no cover
     """ Main function. """
     extensions = ["pdf", "docx", "zip"]
-    args = parse_arguments()
+    config = read_config()
     books = load_books()
-    github_api = get_github_api(args.user, args.password)
+    github_api = get_github_api(config["github_username"], config["github_password"])
     repo = github_api.get_repo("wa-biel/biel-files")
     tree = repo.get_git_tree("master", recursive=True)
     biel_data = create_biel_data_from_tree(tree, extensions, books)
     json.dump(biel_data, sys.stdout, sort_keys=True, indent=4)
 
-def parse_arguments(): # pragma: no cover
-    """ Configures and parses command-line arguments """
+def read_config():
+    config = {
+        "github_username": "",
+        "github_password": ""
+        }
 
-    argparser = argparse.ArgumentParser(
-        description="Prints index for biel-files GitHub repo")
+    if "BF_GITHUB_USERNAME" in os.environ:
+        config["github_username"] = os.environ["BF_GITHUB_USERNAME"]
 
-    argparser.add_argument("--user",
-                           nargs="?",
-                           default="",
-                           help="GitHub user, default anonymous")
+    if "BF_GITHUB_PASSWORD" in os.environ:
+        config["github_password"] = os.environ["BF_GITHUB_PASSWORD"]
 
-    argparser.add_argument("--password",
-                           nargs="?",
-                           default="",
-                           help="GitHub password or token, default anonymous")
-
-    return argparser.parse_args()
+    return config
 
 def load_books(): # pragma: no cover
     """ Load books.json from disk """
