@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """ Tests for main.py """
 
 import unittest
@@ -27,7 +29,7 @@ class TestMain(unittest.TestCase):
                 "checkingLevel": "3",
                 "code": "rg",
                 "links": [],
-                "name": "Reviewer's Guide",
+                "name": "Reviewers' Guide",
                 "subject": "Reference",
                 "subcontents": [
                     {"name": "Example Guide",
@@ -67,3 +69,6 @@ class TestMain(unittest.TestCase):
                     ]}]}]
         actual = main.create_biel_data_from_tree(tree, extensions, books)
         self.assertEqual(expected, actual)
+
+if __name__ == "__main__": # pragma: no cover
+    unittest.main()

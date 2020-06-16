@@ -1,6 +1,9 @@
-FROM python:3
+FROM python:3.6-slim
 RUN pip3 install PyGithub
-ADD ["main.py", "/"]
-ADD ["books.json", "/"]
-RUN chmod +x /main.py
-ENTRYPOINT ["/main.py"]
+
+WORKDIR /app
+ADD ["*.py", "/app/"]
+ADD ["books.json", "/app/"]
+RUN chmod +x /app/*.py
+
+ENTRYPOINT ["/app/main.py"]
