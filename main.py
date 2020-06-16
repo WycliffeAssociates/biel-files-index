@@ -3,7 +3,6 @@
 """ Reads a repo tree from GitHub, then produces a json file ready to be
     imported into analyze-catalog for the BIEL website. """
 
-import argparse
 import json
 import operator
 import os
@@ -24,7 +23,8 @@ def main(): # pragma: no cover
     biel_data = create_biel_data_from_tree(tree, extensions, books)
     json.dump(biel_data, sys.stdout, sort_keys=True, indent=4)
 
-def read_config():
+def read_config(): # pragma: no cover
+    """ Read configuration from environment """
     config = {
         "github_username": "",
         "github_password": ""
