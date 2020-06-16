@@ -21,7 +21,7 @@ def main(): # pragma: no cover
     repo = github_api.get_repo("wa-biel/biel-files")
     tree = repo.get_git_tree("master", recursive=True)
     biel_data = create_biel_data_from_tree(tree, extensions, books)
-    json.dump(biel_data, args.outfile, sort_keys=True, indent=4)
+    json.dump(biel_data, sys.stdout, sort_keys=True, indent=4)
 
 def parse_arguments(): # pragma: no cover
     """ Configures and parses command-line arguments """
@@ -38,12 +38,6 @@ def parse_arguments(): # pragma: no cover
                            nargs="?",
                            default="",
                            help="GitHub password or token, default anonymous")
-
-    argparser.add_argument("--outfile",
-                           nargs="?",
-                           type=argparse.FileType("w"),
-                           default=sys.stdout,
-                           help="Filename of JSON output file, default stdout")
 
     return argparser.parse_args()
 

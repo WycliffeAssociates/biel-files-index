@@ -1,4 +1,4 @@
-.PHONY: build run test lint shell
+.PHONY: build run test lint edit shell
 
 build:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
@@ -23,6 +23,9 @@ lint:
 	docker run -it --rm \
 		--entrypoint=/app/lint.sh \
 		biel-files:$(BF_IMAGE_LABEL)
+
+edit:
+	$(EDITOR) README.md makefile Dockerfile *.sh *.py
 
 shell:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
