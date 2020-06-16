@@ -12,6 +12,10 @@ import urllib
 
 import github
 
+class ApplicationException(Exception):
+    """ Base class for application exceptions """
+    pass
+
 def main(): # pragma: no cover
     """ Main function. """
     extensions = ["pdf", "docx", "zip"]
@@ -27,7 +31,9 @@ def read_config(): # pragma: no cover
     """ Read configuration from environment """
     config = {
         "github_username": "",
-        "github_password": ""
+        "github_password": "",
+        "repo_username": "",
+        "repo_id": ""
         }
 
     if "BF_GITHUB_USERNAME" in os.environ:
@@ -35,6 +41,16 @@ def read_config(): # pragma: no cover
 
     if "BF_GITHUB_PASSWORD" in os.environ:
         config["github_password"] = os.environ["BF_GITHUB_PASSWORD"]
+
+    if "BF_REPO_USERNAME" in os.environ:
+        config["repo_username"] = os.environ["BF_REPO_USERNAME"]
+    else:
+        raise ApplicationException("BF_REPO_USERNAME not defined")
+
+    if "BF_REPO_ID" in os.environ:
+        config["repo_id"] = os.environ["BF_REPO_ID"]
+    else:
+        raise ApplicationException("BF_REPO_ID not defined")
 
     return config
 
