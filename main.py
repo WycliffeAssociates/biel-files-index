@@ -23,10 +23,14 @@ def main(): # pragma: no cover
     github_api = get_github_api(config["github_username"], config["github_password"])
     repo = github_api.get_repo(config["repo_username"] + "/" + config["repo_id"])
     tree = repo.get_git_tree("master", recursive=True)
-    files = filter_files_from_tree(tree, extensions, books)
+    files = filter_files_from_tree(tree, config["dir_name"], extensions, books)
     biel_data = create_biel_data_from_tree(
-        files, config["repo_username"], config["repo_id"],
-        config["branch_id"], config["language_code"])
+        files,
+        config["repo_username"],
+        config["repo_id"],
+        config["branch_id"],
+        config["language_code"],
+        config["dir_label"])
     json.dump(biel_data, sys.stdout, sort_keys=True, indent=4)
 
 def read_config(): # pragma: no cover
@@ -37,7 +41,9 @@ def read_config(): # pragma: no cover
         "repo_username": "",
         "repo_id": "",
         "branch_id": "",
-        "language_code": ""
+        "language_code": "",
+        "dir_name": "",
+        "dir_label": ""
         }
 
     if "BF_GITHUB_USERNAME" in os.environ:
@@ -66,6 +72,16 @@ def read_config(): # pragma: no cover
     else:
         raise ApplicationException("BF_LANGUAGE_CODE not defined")
 
+    if "BF_DIR_NAME" in os.environ:
+        config["dir_name"] = os.environ["BF_DIR_NAME"]
+    else:
+        raise ApplicationException("BF_DIR_NAME not defined")
+
+    if "BF_DIR_LABEL" in os.environ:
+        config["dir_label"] = os.environ["BF_DIR_LABEL"]
+    else:
+        raise ApplicationException("BF_DIR_LABEL not defined")
+
     return config
 
 def load_books(): # pragma: no cover
@@ -82,19 +98,7 @@ def get_github_api(username, password): #pragma: no cover
         github_api = github.Github(username, password)
     return github_api
 
-def create_biel_data_from_tree(files, repo_username, repo_id, branch_id, language_code):
-    """ Reads the repo tree and returns a BIEL-formatted data object. """
-    return [{
-        "code": language_code,
-        "contents": [{
-            "checkingLevel": "3",
-            "code": "rg",
-            "links": [],
-            "name": "Reviewers' Guide",
-            "subject": "Reference",
-            "subcontents": create_subcontents(repo_username, repo_id, branch_id, files)}]}]
-
-def filter_files_from_tree(tree, extensions, books):
+def filter_files_from_tree(tree, dir_name, extensions, books):
     """ Reads a GitHub tree object and returns a list of files to be
         included in BIEL, sorted by name. """
     files = {}
@@ -102,7 +106,7 @@ def filter_files_from_tree(tree, extensions, books):
         path_parts = pathlib.Path(entry.path).parts
 
         # Ignore anything outside the review guide
-        if path_parts[0] != "review-guide":
+        if path_parts[0] != dir_name:
             continue
 
         # Ignore files that don't end with the given extensions
@@ -145,6 +149,18 @@ def filter_files_from_tree(tree, extensions, books):
         file_data["sort_index"] = sort_index
 
     return file_list
+
+def create_biel_data_from_tree(files, repo_username, repo_id, branch_id, language_code, dir_label):
+    """ Reads the repo tree and returns a BIEL-formatted data object. """
+    return [{
+        "code": language_code,
+        "contents": [{
+            "checkingLevel": "3",
+            "code": "rg",
+            "links": [],
+            "name": dir_label,
+            "subject": "Reference",
+            "subcontents": create_subcontents(repo_username, repo_id, branch_id, files)}]}]
 
 def calculate_sort_field(path_parts, filename_root, books):
     """ Calculate where this item should be sorted.  Returns a string that

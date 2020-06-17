@@ -13,6 +13,8 @@ run:
 		--env BF_REPO_ID=$(BF_REPO_ID) \
 		--env BF_BRANCH_ID=$(BF_BRANCH_ID) \
 		--env BF_LANGUAGE_CODE=$(BF_LANGUAGE_CODE) \
+		--env BF_DIR_NAME=$(BF_DIR_NAME) \
+		--env BF_DIR_LABEL="$(BF_DIR_LABEL)" \
 		biel-files:$(BF_IMAGE_LABEL) > biel-files.json
 
 test:

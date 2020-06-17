@@ -67,8 +67,9 @@ class TestMain(unittest.TestCase):
                           "quality": None,
                           "chapters": []}]},
                     ]}]}]
-        files = main.filter_files_from_tree(tree, extensions, books)
-        actual = main.create_biel_data_from_tree(files, "wa-biel", "biel-files", "master", "en")
+        files = main.filter_files_from_tree(tree, "review-guide", extensions, books)
+        actual = main.create_biel_data_from_tree(
+            files, "wa-biel", "biel-files", "master", "en", "Reviewers' Guide")
         self.assertEqual(expected, actual)
 
 if __name__ == "__main__": # pragma: no cover

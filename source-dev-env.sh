@@ -6,4 +6,6 @@ export BF_REPO_USERNAME=wa-biel
 export BF_REPO_ID=biel-files
 export BF_BRANCH_ID=master
 export BF_LANGUAGE_CODE=en
+export BF_DIR_NAME=review-guide
+export BF_DIR_LABEL="Reviewers' Guide"
 export BF_PYLINT_PARAMS=--output-format=colorized
