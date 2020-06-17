@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-pylint *.py
+pylint ${BF_PYLINT_PARAMS} *.py

@@ -23,8 +23,10 @@ def main(): # pragma: no cover
     github_api = get_github_api(config["github_username"], config["github_password"])
     repo = github_api.get_repo(config["repo_username"] + "/" + config["repo_id"])
     tree = repo.get_git_tree("master", recursive=True)
+    files = filter_files_from_tree(tree, extensions, books)
     biel_data = create_biel_data_from_tree(
-        tree, extensions, books, config["repo_username"], config["repo_id"])
+        files, config["repo_username"], config["repo_id"],
+        config["branch_id"], config["language_code"])
     json.dump(biel_data, sys.stdout, sort_keys=True, indent=4)
 
 def read_config(): # pragma: no cover
@@ -33,7 +35,9 @@ def read_config(): # pragma: no cover
         "github_username": "",
         "github_password": "",
         "repo_username": "",
-        "repo_id": ""
+        "repo_id": "",
+        "branch_id": "",
+        "language_code": ""
         }
 
     if "BF_GITHUB_USERNAME" in os.environ:
@@ -52,6 +56,16 @@ def read_config(): # pragma: no cover
     else:
         raise ApplicationException("BF_REPO_ID not defined")
 
+    if "BF_BRANCH_ID" in os.environ:
+        config["branch_id"] = os.environ["BF_BRANCH_ID"]
+    else:
+        raise ApplicationException("BF_BRANCH_ID not defined")
+
+    if "BF_LANGUAGE_CODE" in os.environ:
+        config["language_code"] = os.environ["BF_LANGUAGE_CODE"]
+    else:
+        raise ApplicationException("BF_LANGUAGE_CODE not defined")
+
     return config
 
 def load_books(): # pragma: no cover
@@ -68,18 +82,17 @@ def get_github_api(username, password): #pragma: no cover
         github_api = github.Github(username, password)
     return github_api
 
-def create_biel_data_from_tree(tree, extensions, books, repo_username, repo_id):
+def create_biel_data_from_tree(files, repo_username, repo_id, branch_id, language_code):
     """ Reads the repo tree and returns a BIEL-formatted data object. """
-    files = filter_files_from_tree(tree, extensions, books)
     return [{
-        "code": "en",
+        "code": language_code,
         "contents": [{
             "checkingLevel": "3",
             "code": "rg",
             "links": [],
             "name": "Reviewers' Guide",
             "subject": "Reference",
-            "subcontents": create_subcontents(repo_username, repo_id, files)}]}]
+            "subcontents": create_subcontents(repo_username, repo_id, branch_id, files)}]}]
 
 def filter_files_from_tree(tree, extensions, books):
     """ Reads a GitHub tree object and returns a list of files to be
@@ -150,35 +163,36 @@ def calculate_sort_field(path_parts, filename_root, books):
 
     return sort
 
-def create_subcontents(repo_username, repo_id, files):
+def create_subcontents(repo_username, repo_id, branch_id, files):
     """ Creates subcontents nodes of output data """
-    return [create_subcontents_entry(repo_username, repo_id, file_data) for file_data in files]
+    return [create_subcontents_entry(repo_username, repo_id, branch_id, file_data) \
+                for file_data in files]
 
-def create_subcontents_entry(repo_username, repo_id, file_data):
+def create_subcontents_entry(repo_username, repo_id, branch_id, file_data):
     """ Create single subcontents node for a given file """
     return {
         "name": file_data["name"],
         "code": "",
         "sort": file_data["sort_index"],
         "category": "topics",
-        "links": [create_subcontents_entry_link(repo_username, repo_id, link) \
+        "links": [create_subcontents_entry_link(repo_username, repo_id, branch_id, link) \
                   for link in sorted(file_data["links"].values(), \
                                      key=operator.itemgetter("extension"))]}
 
-def create_subcontents_entry_link(repo_username, repo_id, link):
+def create_subcontents_entry_link(repo_username, repo_id, branch_id, link):
     """ Create link node """
     return {
-        "url": path_to_url(repo_username, repo_id, link["path"]),
+        "url": path_to_url(repo_username, repo_id, branch_id, link["path"]),
         "format": link["extension"],
         "zipContent": "",
         "quality": None,
         "chapters": []
         }
 
-def path_to_url(repo_username, repo_id, path):
+def path_to_url(repo_username, repo_id, branch_id, path):
     """ Returns a URL for the given path that will download the file from the repo. """
     quoted_path = urllib.parse.quote(path)
-    return f"https://github.com/{repo_username}/{repo_id}/raw/master/{quoted_path}"
+    return f"https://github.com/{repo_username}/{repo_id}/raw/{branch_id}/{quoted_path}"
 
 if __name__ == "__main__": # pragma: no cover
     main()

@@ -11,6 +11,8 @@ run:
 		--env BF_GITHUB_PASSWORD=$(BF_GITHUB_PASSWORD) \
 		--env BF_REPO_USERNAME=$(BF_REPO_USERNAME) \
 		--env BF_REPO_ID=$(BF_REPO_ID) \
+		--env BF_BRANCH_ID=$(BF_BRANCH_ID) \
+		--env BF_LANGUAGE_CODE=$(BF_LANGUAGE_CODE) \
 		biel-files:$(BF_IMAGE_LABEL) > biel-files.json
 
 test:
@@ -26,6 +28,7 @@ lint:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
 	docker build . -t biel-files:$(BF_IMAGE_LABEL)
 	docker run -it --rm \
+		--env BF_PYLINT_PARAMS=$(BF_PYLINT_PARAMS) \
 		--entrypoint=/app/lint.sh \
 		biel-files:$(BF_IMAGE_LABEL)
 
