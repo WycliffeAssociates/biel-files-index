@@ -35,54 +35,24 @@ def main(): # pragma: no cover
 
 def read_config(): # pragma: no cover
     """ Read configuration from environment """
-    config = {
-        "github_username": "",
-        "github_password": "",
-        "repo_username": "",
-        "repo_id": "",
-        "branch_id": "",
-        "language_code": "",
-        "dir_name": "",
-        "dir_label": ""
+    return {
+        "github_username": get_env("BF_GITHUB_USERNAME"),
+        "github_password": get_env("BF_GITHUB_PASSWORD"),
+        "repo_username":   get_env("BF_REPO_USERNAME", raise_exception=True),
+        "repo_id":         get_env("BF_REPO_ID", raise_exception=True),
+        "branch_id":       get_env("BF_BRANCH_ID", raise_exception=True),
+        "language_code":   get_env("BF_LANGUAGE_CODE", raise_exception=True),
+        "dir_name":        get_env("BF_DIR_NAME", raise_exception=True),
+        "dir_label":       get_env("BF_DIR_LABEL", raise_exception=True)
         }
 
-    if "BF_GITHUB_USERNAME" in os.environ:
-        config["github_username"] = os.environ["BF_GITHUB_USERNAME"]
-
-    if "BF_GITHUB_PASSWORD" in os.environ:
-        config["github_password"] = os.environ["BF_GITHUB_PASSWORD"]
-
-    if "BF_REPO_USERNAME" in os.environ:
-        config["repo_username"] = os.environ["BF_REPO_USERNAME"]
-    else:
-        raise ApplicationException("BF_REPO_USERNAME not defined")
-
-    if "BF_REPO_ID" in os.environ:
-        config["repo_id"] = os.environ["BF_REPO_ID"]
-    else:
-        raise ApplicationException("BF_REPO_ID not defined")
-
-    if "BF_BRANCH_ID" in os.environ:
-        config["branch_id"] = os.environ["BF_BRANCH_ID"]
-    else:
-        raise ApplicationException("BF_BRANCH_ID not defined")
-
-    if "BF_LANGUAGE_CODE" in os.environ:
-        config["language_code"] = os.environ["BF_LANGUAGE_CODE"]
-    else:
-        raise ApplicationException("BF_LANGUAGE_CODE not defined")
-
-    if "BF_DIR_NAME" in os.environ:
-        config["dir_name"] = os.environ["BF_DIR_NAME"]
-    else:
-        raise ApplicationException("BF_DIR_NAME not defined")
-
-    if "BF_DIR_LABEL" in os.environ:
-        config["dir_label"] = os.environ["BF_DIR_LABEL"]
-    else:
-        raise ApplicationException("BF_DIR_LABEL not defined")
-
-    return config
+def get_env(env_var_name, raise_exception=False): # pragma: no cover
+    """ Get environment variable, optionally throwing an exception if not defined. """
+    if env_var_name in os.environ:
+        return os.environ[env_var_name]
+    if raise_exception:
+        raise ApplicationException(f"{env_var_name} not defined")
+    return ""
 
 def load_books(): # pragma: no cover
     """ Load books.json from disk """
