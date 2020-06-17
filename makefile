@@ -9,6 +9,8 @@ run:
 	docker run --rm \
 		--env BF_GITHUB_USERNAME=$(BF_GITHUB_USERNAME) \
 		--env BF_GITHUB_PASSWORD=$(BF_GITHUB_PASSWORD) \
+		--env BF_REPO_USERNAME=$(BF_REPO_USERNAME) \
+		--env BF_REPO_ID=$(BF_REPO_ID) \
 		biel-files:$(BF_IMAGE_LABEL) > biel-files.json
 
 test:

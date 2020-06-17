@@ -14,7 +14,6 @@ import github
 
 class ApplicationException(Exception):
     """ Base class for application exceptions """
-    pass
 
 def main(): # pragma: no cover
     """ Main function. """
@@ -22,9 +21,10 @@ def main(): # pragma: no cover
     config = read_config()
     books = load_books()
     github_api = get_github_api(config["github_username"], config["github_password"])
-    repo = github_api.get_repo("wa-biel/biel-files")
+    repo = github_api.get_repo(config["repo_username"] + "/" + config["repo_id"])
     tree = repo.get_git_tree("master", recursive=True)
-    biel_data = create_biel_data_from_tree(tree, extensions, books)
+    biel_data = create_biel_data_from_tree(
+        tree, extensions, books, config["repo_username"], config["repo_id"])
     json.dump(biel_data, sys.stdout, sort_keys=True, indent=4)
 
 def read_config(): # pragma: no cover
@@ -68,7 +68,7 @@ def get_github_api(username, password): #pragma: no cover
         github_api = github.Github(username, password)
     return github_api
 
-def create_biel_data_from_tree(tree, extensions, books):
+def create_biel_data_from_tree(tree, extensions, books, repo_username, repo_id):
     """ Reads the repo tree and returns a BIEL-formatted data object. """
     files = filter_files_from_tree(tree, extensions, books)
     return [{
@@ -79,7 +79,7 @@ def create_biel_data_from_tree(tree, extensions, books):
             "links": [],
             "name": "Reviewers' Guide",
             "subject": "Reference",
-            "subcontents": create_subcontents(files)}]}]
+            "subcontents": create_subcontents(repo_username, repo_id, files)}]}]
 
 def filter_files_from_tree(tree, extensions, books):
     """ Reads a GitHub tree object and returns a list of files to be
@@ -150,34 +150,35 @@ def calculate_sort_field(path_parts, filename_root, books):
 
     return sort
 
-def create_subcontents(files):
+def create_subcontents(repo_username, repo_id, files):
     """ Creates subcontents nodes of output data """
-    return [create_subcontents_entry(file_data) for file_data in files]
+    return [create_subcontents_entry(repo_username, repo_id, file_data) for file_data in files]
 
-def create_subcontents_entry(file_data):
+def create_subcontents_entry(repo_username, repo_id, file_data):
     """ Create single subcontents node for a given file """
     return {
         "name": file_data["name"],
         "code": "",
         "sort": file_data["sort_index"],
         "category": "topics",
-        "links": [create_subcontents_entry_link(link) \
+        "links": [create_subcontents_entry_link(repo_username, repo_id, link) \
                   for link in sorted(file_data["links"].values(), \
                                      key=operator.itemgetter("extension"))]}
 
-def create_subcontents_entry_link(link):
+def create_subcontents_entry_link(repo_username, repo_id, link):
     """ Create link node """
     return {
-        "url": path_to_url(link["path"]),
+        "url": path_to_url(repo_username, repo_id, link["path"]),
         "format": link["extension"],
         "zipContent": "",
         "quality": None,
         "chapters": []
         }
 
-def path_to_url(path):
+def path_to_url(repo_username, repo_id, path):
     """ Returns a URL for the given path that will download the file from the repo. """
-    return "https://github.com/wa-biel/biel-files/raw/master/" + urllib.parse.quote(path)
+    quoted_path = urllib.parse.quote(path)
+    return f"https://github.com/{repo_username}/{repo_id}/raw/master/{quoted_path}"
 
 if __name__ == "__main__": # pragma: no cover
     main()
