@@ -21,7 +21,7 @@ def main(): # pragma: no cover
     config = read_config()
     books = load_books()
     github_api = get_github_api(config["github_username"], config["github_password"])
-    repo = github_api.get_repo(config["repo_username"] + "/" + config["repo_id"])
+    repo = github_api.get_repo(f"{config['repo_username']}/{config['repo_id']}")
     tree = repo.get_git_tree("master", recursive=True)
     files = filter_files_from_tree(tree, config["dir_name"], extensions, books)
     biel_data = create_biel_data_from_tree(
@@ -121,6 +121,7 @@ def filter_files_from_tree(tree, dir_name, extensions, books):
     return file_list
 
 def create_biel_data_from_tree(files, repo_username, repo_id, branch_id, language_code, dir_label):
+    # pylint: disable=too-many-arguments
     """ Reads the repo tree and returns a BIEL-formatted data object. """
     return [{
         "code": language_code,
