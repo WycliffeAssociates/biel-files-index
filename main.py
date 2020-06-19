@@ -22,7 +22,7 @@ def main(): # pragma: no cover
     books = load_books()
     github_api = get_github_api(config["github_username"], config["github_password"])
     repo = github_api.get_repo(f"{config['repo_username']}/{config['repo_id']}")
-    tree = repo.get_git_tree("master", recursive=True)
+    tree = repo.get_git_tree(config["branch_id"], recursive=True)
     files = filter_files_from_tree(tree, config["dir_name"], extensions, books)
     biel_data = create_biel_data_from_tree(
         files,

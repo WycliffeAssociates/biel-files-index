@@ -6,8 +6,13 @@ RUN pip3 install \
     coverage
 
 WORKDIR /app
-ADD ["*.sh", "/app/"]
+
+# Add data files
 ADD ["books.json", "/app/"]
+
+# Add scripts
+ADD ["lint.sh", "/app/"]
+ADD ["test.sh", "/app/"]
 RUN chmod +x /app/*.sh
 
 # Add Python files last since they're most likely to change
