@@ -1,8 +1,11 @@
-.PHONY: build run run-all test lint edit shell
+.PHONY: build clean run run-all test lint edit shell
 
 build:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
 	docker build . -t biel-files:$(BF_IMAGE_LABEL)
+
+clean:
+	rm -f biel-files*.json
 
 run:
 	test -n "$(BF_IMAGE_LABEL)"   # $$BF_IMAGE_LABEL
@@ -24,10 +27,11 @@ run:
 		biel-files:$(BF_IMAGE_LABEL) > biel-files.json
 
 run-all:
-	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
+	test -n "$(BF_IMAGE_LABEL)"   # $$BF_IMAGE_LABEL
 	test -n "$(BF_REPO_USERNAME)" # $$BF_REPO_USERNAME
 	test -n "$(BF_REPO_ID)"       # $$BF_REPO_ID
 	test -n "$(BF_BRANCH_ID)"     # $$BF_BRANCH_ID
+	rm -f biel-files*.json
 	# English
 	docker run --rm \
 		--env BF_GITHUB_USERNAME=$(BF_GITHUB_USERNAME) \
@@ -51,7 +55,7 @@ run-all:
 		--env BF_DIR_LABEL="Guide des Examinateurs" \
 		biel-files:$(BF_IMAGE_LABEL) > biel-files-fr.json
 	# Combine
-	# TODO
+	jq -s add biel-files*.json > biel-files.json
 
 test:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
