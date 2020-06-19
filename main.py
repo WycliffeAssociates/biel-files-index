@@ -23,7 +23,12 @@ def main(): # pragma: no cover
     github_api = get_github_api(config["github_username"], config["github_password"])
     repo = github_api.get_repo(f"{config['repo_username']}/{config['repo_id']}")
     tree = repo.get_git_tree(config["branch_id"], recursive=True)
-    files = filter_files_from_tree(tree, config["language_code"], config["dir_name"], extensions, books)
+    files = filter_files_from_tree(
+        tree,
+        config["language_code"],
+        config["dir_name"],
+        extensions,
+        books)
     biel_data = create_biel_data_from_tree(
         files,
         config["repo_username"],
@@ -78,7 +83,7 @@ def filter_files_from_tree(tree, language_code, dir_name, extensions, books):
         # Ignore anything outside the review guide
         if len(path_parts) < 2 or \
            path_parts[0] != language_code or \
-           path_parts[1] != dir_name: 
+           path_parts[1] != dir_name:
             continue
 
         # Ignore files that don't end with the given extensions
@@ -88,8 +93,7 @@ def filter_files_from_tree(tree, language_code, dir_name, extensions, books):
         for extension in extensions:
             if filename.endswith(extension):
                 # Calculate offset of extension (plus period) from end of string
-                extension_offset_from_end = (len(extension) + 1) * -1
-                filename_root = filename[:extension_offset_from_end]
+                filename_root = filename[:(len(extension) + 1) * -1]
                 filename_extension = extension
                 break # for extension in extensions
         if filename_root is None:
