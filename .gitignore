@@ -1,5 +1,6 @@
 # App
-biel-files.json
+biel-files*.json
+env-local.sh
 
 # Vim
 *.swp
