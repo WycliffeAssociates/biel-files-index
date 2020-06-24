@@ -7,9 +7,6 @@ website.
 Development
 ===========
 
-All these commands require an environment variable `$BF_IMAGE_LABEL` to be
-set, which is the label for the Docker image to use, e.g. "prod" or "dev"
-
 To build: `make build`
 
 To run: `make run`
