@@ -1,0 +1,12 @@
+[
+    { 
+        "lang_code": "en",
+        "dir_name":  "review-guide",
+        "dir_label": "Reviewers' Guide"
+    },
+    { 
+        "lang_code": "fr",
+        "dir_name":  "guide-d'examen",
+        "dir_label": "Guide des Examinateurs"
+    }
+]

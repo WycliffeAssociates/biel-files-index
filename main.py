@@ -19,24 +19,27 @@ def main(): # pragma: no cover
     """ Main function. """
     extensions = ["pdf", "docx", "zip"]
     config = read_config()
-    books = load_books()
+    books = load_json("books.json")
+    languages = load_json("languages.json")
     github_api = get_github_api(config["github_username"], config["github_password"])
     repo = github_api.get_repo(f"{config['repo_username']}/{config['repo_id']}")
     tree = repo.get_git_tree(config["branch_id"], recursive=True)
-    files = filter_files_from_tree(
-        tree,
-        config["language_code"],
-        config["dir_name"],
-        extensions,
-        books)
-    biel_data = create_biel_data_from_tree(
-        files,
-        config["repo_username"],
-        config["repo_id"],
-        config["branch_id"],
-        config["language_code"],
-        config["dir_label"])
-    json.dump(biel_data, sys.stdout, sort_keys=True, indent=4)
+    data = []
+    for language in languages:
+        files = filter_files_from_tree(
+            tree,
+            language["lang_code"],
+            language["dir_name"],
+            extensions,
+            books)
+        data += create_biel_data_from_tree(
+            files,
+            config["repo_username"],
+            config["repo_id"],
+            config["branch_id"],
+            language["lang_code"],
+            language["dir_label"])
+    json.dump(data, sys.stdout, sort_keys=True, indent=4)
 
 def read_config(): # pragma: no cover
     """ Read configuration from environment """
@@ -45,10 +48,7 @@ def read_config(): # pragma: no cover
         "github_password": get_env("BF_GITHUB_PASSWORD"),
         "repo_username":   get_env("BF_REPO_USERNAME", raise_exception=True),
         "repo_id":         get_env("BF_REPO_ID", raise_exception=True),
-        "branch_id":       get_env("BF_BRANCH_ID", raise_exception=True),
-        "language_code":   get_env("BF_LANGUAGE_CODE", raise_exception=True),
-        "dir_name":        get_env("BF_DIR_NAME", raise_exception=True),
-        "dir_label":       get_env("BF_DIR_LABEL", raise_exception=True)
+        "branch_id":       get_env("BF_BRANCH_ID", raise_exception=True)
         }
 
 def get_env(env_var_name, raise_exception=False): # pragma: no cover
@@ -59,9 +59,9 @@ def get_env(env_var_name, raise_exception=False): # pragma: no cover
         raise ApplicationException(f"{env_var_name} not defined")
     return ""
 
-def load_books(): # pragma: no cover
+def load_json(filename): # pragma: no cover
     """ Load books.json from disk """
-    with open("books.json") as infile:
+    with open(filename) as infile:
         return json.load(infile)
 
 def get_github_api(username, password): #pragma: no cover
