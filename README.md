@@ -12,9 +12,7 @@ set, which is the label for the Docker image to use, e.g. "prod" or "dev"
 
 To build: `make build`
 
-To run for all languages: `make run-all`
-
-To run for a single language: `make run`
+To run: `make run`
 
 To run unit tests: `make test`
 
