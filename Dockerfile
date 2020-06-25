@@ -8,7 +8,6 @@ RUN pip3 install \
 WORKDIR /app
 
 # Add data files
-ADD ["books.json", "/app/"]
 ADD ["languages.json", "/app/"]
 
 # Add scripts

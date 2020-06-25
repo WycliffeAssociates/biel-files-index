@@ -15,6 +15,8 @@ class TestMain(unittest.TestCase):
         # pylint: disable=line-too-long
         tree = Mock(tree=[
             Mock(path="en/not-in-review-guide/dir1/dir2/Example Guide.pdf"),
+            Mock(path="en/review-guide/dir1/dir2/Guide for Exodus.docx"),
+            Mock(path="en/review-guide/dir1/dir2/Guide for Exodus.pdf"),
             Mock(path="en/review-guide/dir1/dir2/Guide for Genesis.docx"),
             Mock(path="en/review-guide/dir1/dir2/Guide for Genesis.pdf"),
             Mock(path="en/review-guide/dir1/dir2/Example Guide.ignored-extension"),
@@ -22,7 +24,9 @@ class TestMain(unittest.TestCase):
             Mock(path="en/review-guide/dir1/dir2/Example Guide.docx"),
             ])
         extensions = ["pdf", "docx", "zip"]
-        books = {"Genesis": {"num": 1, "anth": "ot"}}
+        books = {
+            "Genesis": {"num": 1, "anth": "ot"},
+            "Exodus": {"num": 2, "anth": "ot"}}
         expected = [{
             "code": "en",
             "contents": [{
@@ -62,6 +66,23 @@ class TestMain(unittest.TestCase):
                           "chapters": []},
                          {"url":
                           "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20Genesis.pdf",
+                          "format": "pdf",
+                          "zipContent": "",
+                          "quality": None,
+                          "chapters": []}]},
+                    {"name": "Guide for Exodus",
+                     "code": "",
+                     "sort": 3,
+                     "category": "topics",
+                     "links": [
+                         {"url":
+                          "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20Exodus.docx",
+                          "format": "docx",
+                          "zipContent": "",
+                          "quality": None,
+                          "chapters": []},
+                         {"url":
+                          "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20Exodus.pdf",
                           "format": "pdf",
                           "zipContent": "",
                           "quality": None,

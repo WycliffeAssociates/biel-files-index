@@ -19,7 +19,6 @@ def main(): # pragma: no cover
     """ Main function. """
     extensions = ["pdf", "docx", "zip"]
     config = read_config()
-    books = load_json("books.json")
     languages = load_json("languages.json")
     github_api = get_github_api(config["github_username"], config["github_password"])
     repo = github_api.get_repo(f"{config['repo_username']}/{config['repo_id']}")
@@ -31,7 +30,7 @@ def main(): # pragma: no cover
             language["lang_code"],
             language["dir_name"],
             extensions,
-            books)
+            language["books"])
         data += create_biel_data_from_tree(
             files,
             config["repo_username"],
@@ -60,7 +59,7 @@ def get_env(env_var_name, raise_exception=False): # pragma: no cover
     return ""
 
 def load_json(filename): # pragma: no cover
-    """ Load books.json from disk """
+    """ Load json file from disk """
     with open(filename) as infile:
         return json.load(infile)
 
