@@ -1,4 +1,4 @@
-.PHONY: build clean run run-all test lint edit shell
+.PHONY: build clean run test lint edit shell
 
 build:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
@@ -38,7 +38,7 @@ lint:
 		biel-files:$(BF_IMAGE_LABEL)
 
 edit:
-	$(EDITOR) makefile README.md makefile Dockerfile *.sh *.py *.json
+	$(EDITOR) README.md makefile Dockerfile *.sh *.py *.json
 
 shell:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
