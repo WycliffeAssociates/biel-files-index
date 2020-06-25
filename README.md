@@ -11,6 +11,8 @@ To build: `make build`
 
 To run: `make run`
 
+To clean up files: `make clean`
+
 To run unit tests: `make test`
 
 To run linter: `make lint`
