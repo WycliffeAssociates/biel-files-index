@@ -3,53 +3,64 @@
 """ Reads a repo tree from GitHub, then produces a json file ready to be
     imported into analyze-catalog for the BIEL website. """
 
-import argparse
 import json
 import operator
+import os
 import pathlib
 import sys
 import urllib
 
 import github
 
+class ApplicationException(Exception):
+    """ Base class for application exceptions """
+
 def main(): # pragma: no cover
     """ Main function. """
     extensions = ["pdf", "docx", "zip"]
-    args = parse_arguments()
-    books = load_books()
-    github_api = get_github_api(args.user, args.password)
-    repo = github_api.get_repo("wa-biel/biel-files")
-    tree = repo.get_git_tree("master", recursive=True)
-    biel_data = create_biel_data_from_tree(tree, extensions, books)
-    json.dump(biel_data, args.outfile, sort_keys=True, indent=4)
+    config = read_config()
+    languages = load_json("languages.json")
+    github_api = get_github_api(config["github_username"], config["github_password"])
+    repo = github_api.get_repo(f"{config['repo_username']}/{config['repo_id']}")
+    tree = repo.get_git_tree(config["branch_id"], recursive=True)
+    data = []
+    for language in languages:
+        files = filter_files_from_tree(
+            tree,
+            language["lang_code"],
+            language["dir_name"],
+            extensions,
+            language["books"])
+        data += create_biel_data_from_tree(
+            files,
+            config["repo_username"],
+            config["repo_id"],
+            config["branch_id"],
+            language["lang_code"],
+            language["dir_label"])
+    json.dump(data, sys.stdout, sort_keys=True, indent=4)
 
-def parse_arguments(): # pragma: no cover
-    """ Configures and parses command-line arguments """
+def read_config(): # pragma: no cover
+    """ Read configuration from environment """
+    return {
+        "github_username": get_env("BF_GITHUB_USERNAME"),
+        "github_password": get_env("BF_GITHUB_PASSWORD"),
+        "repo_username":   get_env("BF_REPO_USERNAME", raise_exception=True),
+        "repo_id":         get_env("BF_REPO_ID", raise_exception=True),
+        "branch_id":       get_env("BF_BRANCH_ID", raise_exception=True)
+        }
 
-    argparser = argparse.ArgumentParser(
-        description="Prints index for biel-files GitHub repo")
+def get_env(env_var_name, raise_exception=False): # pragma: no cover
+    """ Get environment variable, optionally throwing an exception if not defined. """
+    if env_var_name in os.environ:
+        return os.environ[env_var_name]
+    if raise_exception:
+        raise ApplicationException(f"{env_var_name} not defined")
+    return ""
 
-    argparser.add_argument("--user",
-                           nargs="?",
-                           default="",
-                           help="GitHub user, default anonymous")
-
-    argparser.add_argument("--password",
-                           nargs="?",
-                           default="",
-                           help="GitHub password or token, default anonymous")
-
-    argparser.add_argument("--outfile",
-                           nargs="?",
-                           type=argparse.FileType("w"),
-                           default=sys.stdout,
-                           help="Filename of JSON output file, default stdout")
-
-    return argparser.parse_args()
-
-def load_books(): # pragma: no cover
-    """ Load books.json from disk """
-    with open("books.json") as infile:
+def load_json(filename): # pragma: no cover
+    """ Load json file from disk """
+    with open(filename) as infile:
         return json.load(infile)
 
 def get_github_api(username, password): #pragma: no cover
@@ -61,20 +72,7 @@ def get_github_api(username, password): #pragma: no cover
         github_api = github.Github(username, password)
     return github_api
 
-def create_biel_data_from_tree(tree, extensions, books):
-    """ Reads the repo tree and returns a BIEL-formatted data object. """
-    files = filter_files_from_tree(tree, extensions, books)
-    return [{
-        "code": "en",
-        "contents": [{
-            "checkingLevel": "3",
-            "code": "rg",
-            "links": [],
-            "name": "Reviewers' Guide",
-            "subject": "Reference",
-            "subcontents": create_subcontents(files)}]}]
-
-def filter_files_from_tree(tree, extensions, books):
+def filter_files_from_tree(tree, language_code, dir_name, extensions, books):
     """ Reads a GitHub tree object and returns a list of files to be
         included in BIEL, sorted by name. """
     files = {}
@@ -82,7 +80,9 @@ def filter_files_from_tree(tree, extensions, books):
         path_parts = pathlib.Path(entry.path).parts
 
         # Ignore anything outside the review guide
-        if path_parts[0] != "review-guide":
+        if len(path_parts) < 2 or \
+           path_parts[0] != language_code or \
+           path_parts[1] != dir_name:
             continue
 
         # Ignore files that don't end with the given extensions
@@ -92,8 +92,7 @@ def filter_files_from_tree(tree, extensions, books):
         for extension in extensions:
             if filename.endswith(extension):
                 # Calculate offset of extension (plus period) from end of string
-                extension_offset_from_end = (len(extension) + 1) * -1
-                filename_root = filename[:extension_offset_from_end]
+                filename_root = filename[:(len(extension) + 1) * -1]
                 filename_extension = extension
                 break # for extension in extensions
         if filename_root is None:
@@ -126,6 +125,19 @@ def filter_files_from_tree(tree, extensions, books):
 
     return file_list
 
+def create_biel_data_from_tree(files, repo_username, repo_id, branch_id, language_code, dir_label):
+    # pylint: disable=too-many-arguments
+    """ Reads the repo tree and returns a BIEL-formatted data object. """
+    return [{
+        "code": language_code,
+        "contents": [{
+            "checkingLevel": "3",
+            "code": "rg",
+            "links": [],
+            "name": dir_label,
+            "subject": "Reference",
+            "subcontents": create_subcontents(repo_username, repo_id, branch_id, files)}]}]
+
 def calculate_sort_field(path_parts, filename_root, books):
     """ Calculate where this item should be sorted.  Returns a string that
         can be used to naturally sort the files. """
@@ -143,34 +155,36 @@ def calculate_sort_field(path_parts, filename_root, books):
 
     return sort
 
-def create_subcontents(files):
+def create_subcontents(repo_username, repo_id, branch_id, files):
     """ Creates subcontents nodes of output data """
-    return [create_subcontents_entry(file_data) for file_data in files]
+    return [create_subcontents_entry(repo_username, repo_id, branch_id, file_data) \
+                for file_data in files]
 
-def create_subcontents_entry(file_data):
+def create_subcontents_entry(repo_username, repo_id, branch_id, file_data):
     """ Create single subcontents node for a given file """
     return {
         "name": file_data["name"],
         "code": "",
         "sort": file_data["sort_index"],
         "category": "topics",
-        "links": [create_subcontents_entry_link(link) \
+        "links": [create_subcontents_entry_link(repo_username, repo_id, branch_id, link) \
                   for link in sorted(file_data["links"].values(), \
                                      key=operator.itemgetter("extension"))]}
 
-def create_subcontents_entry_link(link):
+def create_subcontents_entry_link(repo_username, repo_id, branch_id, link):
     """ Create link node """
     return {
-        "url": path_to_url(link["path"]),
+        "url": path_to_url(repo_username, repo_id, branch_id, link["path"]),
         "format": link["extension"],
         "zipContent": "",
         "quality": None,
         "chapters": []
         }
 
-def path_to_url(path):
+def path_to_url(repo_username, repo_id, branch_id, path):
     """ Returns a URL for the given path that will download the file from the repo. """
-    return "https://github.com/wa-biel/biel-files/raw/master/" + urllib.parse.quote(path)
+    quoted_path = urllib.parse.quote(path)
+    return f"https://github.com/{repo_username}/{repo_id}/raw/{branch_id}/{quoted_path}"
 
 if __name__ == "__main__": # pragma: no cover
     main()

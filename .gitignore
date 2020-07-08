@@ -1,3 +1,7 @@
+# App
+biel-files*.json
+env-local.sh
+
 # Vim
 *.swp
 
