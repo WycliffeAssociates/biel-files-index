@@ -23,7 +23,6 @@ run:
 test:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
 	test -n "$(BF_HTMLCOV_DIR)" # $$BF_HTMLCOV_DIR
-	docker build . -t biel-files:$(BF_IMAGE_LABEL)
 	docker run -it --rm \
 		--entrypoint=/app/test.sh \
 		--volume $(BF_HTMLCOV_DIR):/app/htmlcov \
@@ -31,7 +30,6 @@ test:
 
 lint:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
-	docker build . -t biel-files:$(BF_IMAGE_LABEL)
 	docker run -it --rm \
 		--env BF_PYLINT_PARAMS=$(BF_PYLINT_PARAMS) \
 		--entrypoint=/app/lint.sh \
