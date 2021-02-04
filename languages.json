@@ -74,8 +74,8 @@
     },
     { 
         "lang_code": "fr",
-        "dir_name":  "guide-d'examen",
-        "dir_label": "Guide des Examinateurs",
+        "dir_name":  "guide-des-réviseurs",
+        "dir_label": "Guide des Réviseurs",
         "books": {
             "Genèse":                 { "num": 1,  "anth": "ot" },
             "Exode":                  { "num": 2,  "anth": "ot" },
