@@ -1,5 +1,5 @@
 [
-    { 
+    {
         "lang_code": "en",
         "dir_name":  "review-guide",
         "dir_label": "Reviewers' Guide",
@@ -72,7 +72,7 @@
             "Revelation":      { "num": 67, "anth": "nt"}
         }
     },
-    { 
+    {
         "lang_code": "fr",
         "dir_name":  "guide-des-réviseurs",
         "dir_label": "Guide des Réviseurs",
@@ -145,7 +145,7 @@
             "Apocalypse":             { "num": 67, "anth": "nt" }
         }
     },
-    { 
+    {
         "lang_code": "es-419",
         "dir_name":  "guía-de-los-revisores",
         "dir_label": "Guía de los Revisores",
