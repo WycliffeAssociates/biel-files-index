@@ -1,11 +1,10 @@
-FROM python:3.6-slim
-
-RUN pip3 install \
-    PyGithub \
-    pylint \
-    coverage
+FROM python:3.8-slim
 
 WORKDIR /app
+
+# Install libraries
+COPY ["requirements.txt", "/app/"]
+RUN python -m pip install -r requirements.txt
 
 # Add data files
 COPY ["languages.json", "/app/"]
