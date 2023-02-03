@@ -1,12 +1,23 @@
-.PHONY: build clean run test lint edit shell
+#####################################################################
+# For most of these makefile commands, many environment variables
+# need to be set.  You can load some sensible defaults using
+# the env-example.sh file.
+# > source env-example.sh
+#####################################################################
 
+#####################################################################
+# Build Docker image
+#####################################################################
+.PHONY: build
 build:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
 	docker build . -t biel-files:$(BF_IMAGE_LABEL)
 
-clean:
-	rm -f biel-files.json
-
+#####################################################################
+# Run Docker container and write results to ./biel-files.json
+# > make build && make run
+#####################################################################
+.PHONY: run
 run:
 	test -n "$(BF_IMAGE_LABEL)"   # $$BF_IMAGE_LABEL
 	test -n "$(BF_REPO_USERNAME)" # $$BF_REPO_USERNAME
@@ -20,6 +31,18 @@ run:
 		--env BF_BRANCH_ID=$(BF_BRANCH_ID) \
 		biel-files:$(BF_IMAGE_LABEL) > biel-files.json
 
+#####################################################################
+# Cleanup generated files.
+#####################################################################
+.PHONY: clean
+clean:
+	rm -f biel-files.json
+
+#####################################################################
+# Run tests in Docker container.
+# > make build && make test
+#####################################################################
+.PHONY: test
 test:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
 	test -n "$(BF_HTMLCOV_DIR)" # $$BF_HTMLCOV_DIR
@@ -28,6 +51,11 @@ test:
 		--volume $(BF_HTMLCOV_DIR):/app/htmlcov \
 		biel-files:$(BF_IMAGE_LABEL)
 
+#####################################################################
+# Run linters in Docker container.
+# > make build && make test
+#####################################################################
+.PHONY: lint
 lint:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
 	docker run -it --rm \
@@ -35,9 +63,17 @@ lint:
 		--entrypoint=/app/lint.sh \
 		biel-files:$(BF_IMAGE_LABEL)
 
+#####################################################################
+# Edit project files in your favorite editor.
+#####################################################################
+.PHONY: edit
 edit:
 	$(EDITOR) README.md makefile Dockerfile *.sh *.py *.json
 
+#####################################################################
+# Start Docker container and open a shell into it for debugging.
+#####################################################################
+.PHONY: shell
 shell:
 	test -n "$(BF_IMAGE_LABEL)" # $$BF_IMAGE_LABEL
 	docker run -it --rm \
