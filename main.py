@@ -108,7 +108,7 @@ def filter_files_from_tree(tree, language_code, dir_name, extensions, books):
                 }
 
         # Add link to file in index
-        file_data = files[filename_root]["links"][filename_extension] = {
+        files[filename_root]["links"][filename_extension] = {
             "filename": filename,
             "extension": filename_extension,
             "path": entry.path,
