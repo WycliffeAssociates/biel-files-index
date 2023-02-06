@@ -53,7 +53,7 @@ test:
 
 #####################################################################
 # Run linters in Docker container.
-# > make build && make test
+# > make build && make lint
 #####################################################################
 .PHONY: lint
 lint:
