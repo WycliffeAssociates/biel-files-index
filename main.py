@@ -162,11 +162,14 @@ def create_subcontents(repo_username, repo_id, branch_id, files):
 
 def create_subcontents_entry(repo_username, repo_id, branch_id, file_data):
     """ Create single subcontents node for a given file """
+    # Experiment: Set the category name to the folder in GitHub
+    category_name = "/".join(file_data["sort"].split("/")[:-1])
     return {
         "name": file_data["name"],
         "code": "",
         "sort": file_data["sort_index"],
-        "category": "topics",
+        # "category": "topics",
+        "category": category_name,
         "links": [create_subcontents_entry_link(repo_username, repo_id, branch_id, link) \
                   for link in sorted(file_data["links"].values(), \
                                      key=operator.itemgetter("extension"))]}
