@@ -15,10 +15,11 @@ class TestMain(unittest.TestCase):
         # pylint: disable=line-too-long
         tree = Mock(tree=[
             Mock(path="en/not-in-review-guide/dir1/dir2/Example Guide.pdf"),
-            Mock(path="en/review-guide/dir1/dir2/Guide for Exodus.docx"),
-            Mock(path="en/review-guide/dir1/dir2/Guide for Exodus.pdf"),
+            Mock(path="en/review-guide/dir1/dir2/Guide for Matthew.docx"),
+            Mock(path="en/review-guide/dir1/dir2/Guide for Matthew.pdf"),
             Mock(path="en/review-guide/dir1/dir2/Guide for Genesis.docx"),
             Mock(path="en/review-guide/dir1/dir2/Guide for Genesis.pdf"),
+            Mock(path="en/review-guide/dir1/dir2/Guide for BrokenBook.docx"),
             Mock(path="en/review-guide/dir1/dir2/Example Guide.ignored-extension"),
             Mock(path="en/review-guide/dir1/dir2/Example Guide.pdf"),
             Mock(path="en/review-guide/dir1/dir2/Example Guide.docx"),
@@ -26,7 +27,8 @@ class TestMain(unittest.TestCase):
         extensions = ["pdf", "docx", "zip"]
         books = {
             "Genesis": {"num": 1, "anth": "ot"},
-            "Exodus": {"num": 2, "anth": "ot"}}
+            "Matthew": {"num": 41, "anth": "nt"},
+            "BrokenBook": {"num": 68, "anth": "broken"}}
         expected = [{
             "code": "en",
             "contents": [{
@@ -56,7 +58,7 @@ class TestMain(unittest.TestCase):
                     {"name": "Guide for Genesis",
                      "code": "",
                      "sort": 2,
-                     "category": "topics",
+                     "category": "bible-ot",
                      "links": [
                          {"url":
                           "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20Genesis.docx",
@@ -70,20 +72,31 @@ class TestMain(unittest.TestCase):
                           "zipContent": "",
                           "quality": None,
                           "chapters": []}]},
-                    {"name": "Guide for Exodus",
+                    {"name": "Guide for Matthew",
                      "code": "",
                      "sort": 3,
-                     "category": "topics",
+                     "category": "bible-nt",
                      "links": [
                          {"url":
-                          "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20Exodus.docx",
+                          "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20Matthew.docx",
                           "format": "docx",
                           "zipContent": "",
                           "quality": None,
                           "chapters": []},
                          {"url":
-                          "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20Exodus.pdf",
+                          "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20Matthew.pdf",
                           "format": "pdf",
+                          "zipContent": "",
+                          "quality": None,
+                          "chapters": []}]},
+                    {"name": "Guide for BrokenBook",
+                     "code": "",
+                     "sort": 4,
+                     "category": "topics",
+                     "links": [
+                         {"url":
+                          "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20BrokenBook.docx",
+                          "format": "docx",
                           "zipContent": "",
                           "quality": None,
                           "chapters": []}]},

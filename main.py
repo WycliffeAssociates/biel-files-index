@@ -104,6 +104,7 @@ def filter_files_from_tree(tree, language_code, dir_name, extensions, books):
                 "sort": calculate_sort_field(path_parts, filename_root, books),
                 "name": filename_root,
                 "root": filename_root,
+                "category": calculate_category(filename_root, books),
                 "links": {}
                 }
 
@@ -138,9 +139,41 @@ def create_biel_data_from_tree(files, repo_username, repo_id, branch_id, languag
             "subject": "Reference",
             "subcontents": create_subcontents(repo_username, repo_id, branch_id, files)}]}]
 
+
+def calculate_category(filename_root, books):
+    """ Calculate which category the file should be placed in.  At the time
+        of this comment the translations_page.js recognizes the following
+        categories:
+
+        - 'bible-ot'
+        - 'bible-nt'
+        - 'obs'
+        - 'topics'
+        - 'other'
+
+        books is a dictionary (defined in languages.json) where the key is
+        the book name, and has a field "anth" which tells which anthology
+        the book is found in: "ot" or "nt".
+        """
+    category = "topics"
+    for book_name in books:
+        if book_name in filename_root:
+            if books[book_name]["anth"] == "ot":
+                category = "bible-ot"
+            elif books[book_name]["anth"] == "nt":
+                category = "bible-nt"
+            break
+    return category
+
+
 def calculate_sort_field(path_parts, filename_root, books):
     """ Calculate where this item should be sorted.  Returns a string that
-        can be used to naturally sort the files. """
+        can be used to naturally sort the files. 
+
+        books is a dictionary (defined in languages.json) where the key is
+        the book name, and has a field "num" which can be used to sort in
+        canonical order.
+        """
 
     # If the filename contains a book of the Bible, sort in canonical order
     book_number = "00-"
@@ -162,14 +195,12 @@ def create_subcontents(repo_username, repo_id, branch_id, files):
 
 def create_subcontents_entry(repo_username, repo_id, branch_id, file_data):
     """ Create single subcontents node for a given file """
-    # Experiment: Set the category name to the folder in GitHub
-    category_name = "/".join(file_data["sort"].split("/")[:-1])
     return {
         "name": file_data["name"],
         "code": "",
         "sort": file_data["sort_index"],
         # "category": "topics",
-        "category": category_name,
+        "category": file_data["category"],
         "links": [create_subcontents_entry_link(repo_username, repo_id, branch_id, link) \
                   for link in sorted(file_data["links"].values(), \
                                      key=operator.itemgetter("extension"))]}
