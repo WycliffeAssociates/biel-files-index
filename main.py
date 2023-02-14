@@ -199,7 +199,6 @@ def create_subcontents_entry(repo_username, repo_id, branch_id, file_data):
         "name": file_data["name"],
         "code": "",
         "sort": file_data["sort_index"],
-        # "category": "topics",
         "category": file_data["category"],
         "links": [create_subcontents_entry_link(repo_username, repo_id, branch_id, link) \
                   for link in sorted(file_data["links"].values(), \
