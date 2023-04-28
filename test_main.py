@@ -106,5 +106,15 @@ class TestMain(unittest.TestCase):
             files, "wa-biel", "biel-files", "master", "en", "Reviewers' Guide")
         self.assertEqual(expected, actual)
 
+    def test_calculate_sort_field_john(self):
+        """ Test that books sort in the correct order """
+        EN_INDEX = 0
+        languages = main.load_json("languages.json")
+        books = languages[EN_INDEX]["books"]
+        self.assertEqual("44-John Guide", main.calculate_sort_field(("en",
+            "review-guide", "dir1", "dir2"), "John Guide", books))
+
+
+
 if __name__ == "__main__": # pragma: no cover
     unittest.main()
