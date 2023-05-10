@@ -4,7 +4,6 @@
     imported into analyze-catalog for the BIEL website. """
 
 import json
-import logging
 import operator
 import os
 import pathlib
