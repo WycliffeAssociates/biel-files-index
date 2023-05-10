@@ -4,6 +4,7 @@
     imported into analyze-catalog for the BIEL website. """
 
 import json
+import logging
 import operator
 import os
 import pathlib
@@ -177,7 +178,7 @@ def calculate_sort_field(path_parts, filename_root, books):
 
     # Create index of book names in order from longest to shortest.  This
     # is to ensure that books with shorter similar names don't accidentally
-    # get matched before longer ones, e.g. "1 John" being matches as
+    # get matched before longer ones, e.g. "1 John" being matched as
     # "John".
     book_names_by_length = sorted(list(books), key=len, reverse=True)
 
@@ -190,7 +191,7 @@ def calculate_sort_field(path_parts, filename_root, books):
 
     # Sort shallower items before deeper ones, then by directory
     sort = str(len(path_parts)) + "-" + \
-            "/".join(path_parts[2:] + (book_number + filename_root,))
+            "/".join(path_parts[2:-1] + (book_number + filename_root,))
 
     return sort
 
