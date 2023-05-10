@@ -175,9 +175,18 @@ def calculate_sort_field(path_parts, filename_root, books):
         canonical order.
         """
 
+    # Create index of book names in order from longest to shortest.  This
+    # is to ensure that books with shorter similar names don't accidentally
+    # get matched before longer ones, e.g. "1 John" being matches as
+    # "John".
+    book_names_by_length = sorted(
+        [book for book in books], 
+        key=lambda book: len(book),
+        reverse=True)
+
     # If the filename contains a book of the Bible, sort in canonical order
     book_number = "00-"
-    for book in books:
+    for book in book_names_by_length:
         if book in filename_root:
             book_number = str(books[book]["num"]).zfill(2) + "-"
             break
