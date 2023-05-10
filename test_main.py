@@ -55,9 +55,20 @@ class TestMain(unittest.TestCase):
                           "zipContent": "",
                           "quality": None,
                           "chapters": []}]},
-                    {"name": "Guide for Genesis",
+                    {"name": "Guide for BrokenBook",
                      "code": "",
                      "sort": 2,
+                     "category": "topics",
+                     "links": [
+                         {"url":
+                          "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20BrokenBook.docx",
+                          "format": "docx",
+                          "zipContent": "",
+                          "quality": None,
+                          "chapters": []}]},
+                    {"name": "Guide for Genesis",
+                     "code": "",
+                     "sort": 3,
                      "category": "bible-ot",
                      "links": [
                          {"url":
@@ -74,7 +85,7 @@ class TestMain(unittest.TestCase):
                           "chapters": []}]},
                     {"name": "Guide for Matthew",
                      "code": "",
-                     "sort": 3,
+                     "sort": 4,
                      "category": "bible-nt",
                      "links": [
                          {"url":
@@ -89,17 +100,6 @@ class TestMain(unittest.TestCase):
                           "zipContent": "",
                           "quality": None,
                           "chapters": []}]},
-                    {"name": "Guide for BrokenBook",
-                     "code": "",
-                     "sort": 4,
-                     "category": "topics",
-                     "links": [
-                         {"url":
-                          "https://github.com/wa-biel/biel-files/raw/master/en/review-guide/dir1/dir2/Guide%20for%20BrokenBook.docx",
-                          "format": "docx",
-                          "zipContent": "",
-                          "quality": None,
-                          "chapters": []}]},
                     ]}]}]
         files = main.filter_files_from_tree(tree, "en", "review-guide", extensions, books)
         actual = main.create_biel_data_from_tree(
@@ -111,7 +111,7 @@ class TestMain(unittest.TestCase):
         EN_INDEX = 0
         languages = main.load_json("languages.json")
         books = languages[EN_INDEX]["books"]
-        self.assertEqual("44-John Guide", main.calculate_sort_field(("en",
+        self.assertEqual("4-dir1/dir2/44-John Guide", main.calculate_sort_field(("en",
             "review-guide", "dir1", "dir2"), "John Guide", books))
 
 

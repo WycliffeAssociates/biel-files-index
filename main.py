@@ -184,7 +184,7 @@ def calculate_sort_field(path_parts, filename_root, books):
 
     # Sort shallower items before deeper ones, then by directory
     sort = str(len(path_parts)) + "-" + \
-           "/".join(path_parts[2:-1] + (book_number + filename_root,))
+            "/".join(path_parts[2:] + (book_number + filename_root,))
 
     return sort
 
