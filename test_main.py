@@ -113,6 +113,8 @@ class TestMain(unittest.TestCase):
         books = languages[EN_INDEX]["books"]
         self.assertEqual("4-dir1/dir2/44-John Guide", main.calculate_sort_field(("en",
             "review-guide", "dir1", "dir2"), "John Guide", books))
+        self.assertEqual("4-dir1/dir2/50-1 John Guide", main.calculate_sort_field(("en",
+            "review-guide", "dir1", "dir2"), "1 John Guide", books))
 
 
 
