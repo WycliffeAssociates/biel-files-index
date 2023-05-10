@@ -108,9 +108,9 @@ class TestMain(unittest.TestCase):
 
     def test_calculate_sort_field_john(self):
         """ Test that books sort in the correct order """
-        EN_INDEX = 0
+        en_index = 0
         languages = main.load_json("languages.json")
-        books = languages[EN_INDEX]["books"]
+        books = languages[en_index]["books"]
         self.assertEqual("4-dir1/dir2/44-John Guide", main.calculate_sort_field(("en",
             "review-guide", "dir1", "dir2"), "John Guide", books))
         self.assertEqual("4-dir1/dir2/63-1 John Guide", main.calculate_sort_field(("en",

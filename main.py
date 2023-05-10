@@ -168,7 +168,7 @@ def calculate_category(filename_root, books):
 
 def calculate_sort_field(path_parts, filename_root, books):
     """ Calculate where this item should be sorted.  Returns a string that
-        can be used to naturally sort the files. 
+        can be used to naturally sort the files.
 
         books is a dictionary (defined in languages.json) where the key is
         the book name, and has a field "num" which can be used to sort in
@@ -179,10 +179,7 @@ def calculate_sort_field(path_parts, filename_root, books):
     # is to ensure that books with shorter similar names don't accidentally
     # get matched before longer ones, e.g. "1 John" being matches as
     # "John".
-    book_names_by_length = sorted(
-        [book for book in books], 
-        key=lambda book: len(book),
-        reverse=True)
+    book_names_by_length = sorted(list(books), key=len, reverse=True)
 
     # If the filename contains a book of the Bible, sort in canonical order
     book_number = "00-"
